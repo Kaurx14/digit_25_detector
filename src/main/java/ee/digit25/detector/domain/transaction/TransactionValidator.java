@@ -20,19 +20,16 @@ public class TransactionValidator {
     public boolean isLegitimate(Transaction transaction) {
         // First validate the device since it's a quick check
         if (!deviceValidator.isValid(transaction.getDeviceMac())) {
-            log.info("Transaction rejected due to invalid device");
             return false;
         }
         
         // Check sender person
         if (!personValidator.isValid(transaction.getSender())) {
-            log.info("Transaction rejected due to invalid sender person data");
             return false;
         }
         
         // Check recipient person
         if (!personValidator.isValid(transaction.getRecipient())) {
-            log.info("Transaction rejected due to invalid recipient person data");
             return false;
         }
         
@@ -41,7 +38,6 @@ public class TransactionValidator {
                 transaction.getSenderAccount(), 
                 transaction.getAmount(), 
                 transaction.getSender())) {
-            log.info("Transaction rejected due to invalid sender account");
             return false;
         }
         
@@ -49,7 +45,6 @@ public class TransactionValidator {
         if (!accountValidator.isValidRecipientAccount(
                 transaction.getRecipientAccount(), 
                 transaction.getRecipient())) {
-            log.info("Transaction rejected due to invalid recipient account");
             return false;
         }
         

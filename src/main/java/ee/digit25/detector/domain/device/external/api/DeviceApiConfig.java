@@ -16,7 +16,6 @@ public class DeviceApiConfig {
 
     @Bean
     public DeviceApi deviceApi() {
-        log.info("Creating Device API");
 
         return builder.create(properties.getBaseUrl(), DeviceApi.class).build();
     }

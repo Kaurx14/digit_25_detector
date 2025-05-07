@@ -16,7 +16,6 @@ public class TransactionApiConfig {
 
     @Bean
     public TransactionsApi transctionsApi() {
-        log.info("Creating Transactions API");
 
         return builder.create(properties.getBaseUrl(), TransactionsApi.class).build();
     }
