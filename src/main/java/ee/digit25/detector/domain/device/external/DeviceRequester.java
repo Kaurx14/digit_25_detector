@@ -37,7 +37,6 @@ public class DeviceRequester {
     public List<Device> get(List<String> macs) {
         List<Device> devices = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), macs));
         
-        // Cache all fetched devices
         devices.forEach(device -> cacheDevice(device.getMac(), device));
         
         return devices;
@@ -46,7 +45,6 @@ public class DeviceRequester {
     public List<Device> get(int pageNumber, int pageSize) {
         List<Device> devices = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
         
-        // Cache all fetched devices
         devices.forEach(device -> cacheDevice(device.getMac(), device));
         
         return devices;

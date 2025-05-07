@@ -37,7 +37,6 @@ public class PersonRequester {
     public List<Person> get(List<String> personCodes) {
         List<Person> persons = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), personCodes));
         
-        // Cache all fetched persons
         persons.forEach(person -> cachePerson(person.getPersonCode(), person));
         
         return persons;
@@ -46,7 +45,6 @@ public class PersonRequester {
     public List<Person> get(int pageNumber, int pageSize) {
         List<Person> persons = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
         
-        // Cache all fetched persons
         persons.forEach(person -> cachePerson(person.getPersonCode(), person));
         
         return persons;
