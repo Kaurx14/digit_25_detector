@@ -26,18 +26,15 @@ public class PersonRequester {
     public Person get(String personCode) {
         Person cachedPerson = getCachedPerson(personCode);
         if (cachedPerson != null) {
-            log.info("Returning cached person with personCode {}", personCode);
             return cachedPerson;
         }
 
-        log.info("Requesting person with personCode {}", personCode);
         Person person = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), personCode));
         cachePerson(personCode, person);
         return person;
     }
 
     public List<Person> get(List<String> personCodes) {
-        log.info("Requesting persons with personCodes {}", personCodes);
         List<Person> persons = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), personCodes));
         
         // Cache all fetched persons
@@ -47,7 +44,6 @@ public class PersonRequester {
     }
 
     public List<Person> get(int pageNumber, int pageSize) {
-        log.info("Requesting persons page {} of size {}", pageNumber, pageSize);
         List<Person> persons = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
         
         // Cache all fetched persons
