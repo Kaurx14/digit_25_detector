@@ -26,15 +26,18 @@ public class AccountRequester {
     public Account get(String accountNumber) {
         Account cachedAccount = getCachedAccount(accountNumber);
         if (cachedAccount != null) {
+            log.info("Returning cached account {}", accountNumber);
             return cachedAccount;
         }
 
+        log.info("Requesting account {}", accountNumber);
         Account account = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), accountNumber));
         cacheAccount(accountNumber, account);
         return account;
     }
 
     public List<Account> get(List<String> numbers) {
+        log.info("Requesting accounts with numbers {}", numbers);
         List<Account> accounts = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), numbers));
         
         // Cache all fetched accounts
@@ -44,6 +47,7 @@ public class AccountRequester {
     }
 
     public List<Account> get(int pageNumber, int pageSize) {
+        log.info("Requesting accounts page {} of size {}", pageNumber, pageSize);
         List<Account> accounts = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
         
         // Cache all fetched accounts

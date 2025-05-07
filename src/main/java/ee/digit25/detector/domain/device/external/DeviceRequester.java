@@ -26,15 +26,18 @@ public class DeviceRequester {
     public Device get(String mac) {
         Device cachedDevice = getCachedDevice(mac);
         if (cachedDevice != null) {
+            log.info("Returning cached device with mac({})", mac);
             return cachedDevice;
         }
 
+        log.info("Requesting device with mac({})", mac);
         Device device = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), mac));
         cacheDevice(mac, device);
         return device;
     }
 
     public List<Device> get(List<String> macs) {
+        log.info("Requesting devices with macs {}", macs);
         List<Device> devices = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), macs));
         
         // Cache all fetched devices
@@ -44,6 +47,7 @@ public class DeviceRequester {
     }
 
     public List<Device> get(int pageNumber, int pageSize) {
+        log.info("Requesting persons page {} of size {}", pageNumber, pageSize);
         List<Device> devices = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
         
         // Cache all fetched devices

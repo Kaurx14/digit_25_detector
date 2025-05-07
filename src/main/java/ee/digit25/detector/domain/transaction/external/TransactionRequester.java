@@ -19,6 +19,7 @@ public class TransactionRequester {
     private final TransactionApiProperties properties;
 
     public List<Transaction> getUnverified(int amount) {
+        log.info("Requesting a batch of unverified transactions of size {}", amount);
         return RetrofitRequestExecutor.executeRaw(api.getUnverified(properties.getToken(), amount));
     }
 

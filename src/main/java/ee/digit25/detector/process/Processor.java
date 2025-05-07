@@ -29,6 +29,8 @@ public class Processor {
 
     @Scheduled(fixedDelay = 500) // Run more frequently - Lauri
     public void process() {
+        log.info("Starting to process a batch of transactions of size {}", TRANSACTION_BATCH_SIZE);
+
         List<Transaction> transactions = requester.getUnverified(TRANSACTION_BATCH_SIZE);
         if (transactions.isEmpty()) {
             return;
@@ -41,10 +43,12 @@ public class Processor {
         List<CompletableFuture<Void>> futures = transactions.stream()
                 .map(transaction -> CompletableFuture.runAsync(() -> {
                     if (validator.isLegitimate(transaction)) {
+                        log.info("Legitimate transaction {}", transaction.getId());
                         synchronized (legitimateTransactions) {
                             legitimateTransactions.add(transaction);
                         }
                     } else {
+                        log.info("Not legitimate transaction {}", transaction.getId());
                         synchronized (fraudulentTransactions) {
                             fraudulentTransactions.add(transaction);
                         }

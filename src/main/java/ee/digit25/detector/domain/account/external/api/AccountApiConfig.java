@@ -16,6 +16,7 @@ public class AccountApiConfig {
 
     @Bean
     public AccountApi accountApi() {
+        log.info("Creating Accounts API");
 
         return builder.create(properties.getBaseUrl(), AccountApi.class).build();
     }

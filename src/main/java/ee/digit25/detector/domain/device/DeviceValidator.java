@@ -14,11 +14,13 @@ public class DeviceValidator {
     private final DeviceRequester requester;
 
     public boolean isValid(String mac) {
+        log.info("Validating device {}", mac);
         Device device = requester.get(mac);
         return !isBlacklisted(device);
     }
 
     private boolean isBlacklisted(Device device) {
+        log.info("Checking if device is blacklisted");
         return device.getIsBlacklisted();
     }
 }
