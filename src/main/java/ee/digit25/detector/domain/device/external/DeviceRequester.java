@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -17,22 +20,69 @@ public class DeviceRequester {
 
     private final DeviceApi api;
     private final DeviceApiProperties properties;
+    private final Map<String, CacheEntry<Device>> deviceCache = new ConcurrentHashMap<>();
+    private static final long CACHE_TTL_MS = TimeUnit.MINUTES.toMillis(5);
 
     public Device get(String mac) {
-        log.info("Requesting device with mac({})", mac);
+        Device cachedDevice = getCachedDevice(mac);
+        if (cachedDevice != null) {
+            log.info("Returning cached device with mac({})", mac);
+            return cachedDevice;
+        }
 
-        return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), mac));
+        log.info("Requesting device with mac({})", mac);
+        Device device = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), mac));
+        cacheDevice(mac, device);
+        return device;
     }
 
     public List<Device> get(List<String> macs) {
         log.info("Requesting devices with macs {}", macs);
-
-        return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), macs));
+        List<Device> devices = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), macs));
+        
+        // Cache all fetched devices
+        devices.forEach(device -> cacheDevice(device.getMac(), device));
+        
+        return devices;
     }
 
     public List<Device> get(int pageNumber, int pageSize) {
         log.info("Requesting persons page {} of size {}", pageNumber, pageSize);
-
-        return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
+        List<Device> devices = RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
+        
+        // Cache all fetched devices
+        devices.forEach(device -> cacheDevice(device.getMac(), device));
+        
+        return devices;
+    }
+    
+    private Device getCachedDevice(String mac) {
+        CacheEntry<Device> entry = deviceCache.get(mac);
+        if (entry != null && !entry.isExpired()) {
+            return entry.getValue();
+        }
+        return null;
+    }
+    
+    private void cacheDevice(String mac, Device device) {
+        deviceCache.put(mac, new CacheEntry<>(device, System.currentTimeMillis() + CACHE_TTL_MS));
+    }
+    
+    private static class CacheEntry<T> {
+        private final T value;
+        private final long expiryTime;
+        
+        public CacheEntry(T value, long expiryTime) {
+            this.value = value;
+            this.expiryTime = expiryTime;
+        }
+        
+        public T getValue() {
+            return value;
+        }
+        
+        public boolean isExpired() {
+            return System.currentTimeMillis() > expiryTime;
+        }
     }
 }

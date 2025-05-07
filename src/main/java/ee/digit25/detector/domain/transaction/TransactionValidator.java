@@ -18,14 +18,41 @@ public class TransactionValidator {
     private final AccountValidator accountValidator;
 
     public boolean isLegitimate(Transaction transaction) {
-        boolean isLegitimate = true;
-
-        isLegitimate &= personValidator.isValid(transaction.getRecipient());
-        isLegitimate &= personValidator.isValid(transaction.getSender());
-        isLegitimate &= deviceValidator.isValid(transaction.getDeviceMac());
-        isLegitimate &= accountValidator.isValidSenderAccount(transaction.getSenderAccount(), transaction.getAmount(), transaction.getSender());
-        isLegitimate &= accountValidator.isValidRecipientAccount(transaction.getRecipientAccount(), transaction.getRecipient());
-
-        return isLegitimate;
+        // First validate the device since it's a quick check
+        if (!deviceValidator.isValid(transaction.getDeviceMac())) {
+            log.info("Transaction rejected due to invalid device");
+            return false;
+        }
+        
+        // Check sender person
+        if (!personValidator.isValid(transaction.getSender())) {
+            log.info("Transaction rejected due to invalid sender person data");
+            return false;
+        }
+        
+        // Check recipient person
+        if (!personValidator.isValid(transaction.getRecipient())) {
+            log.info("Transaction rejected due to invalid recipient person data");
+            return false;
+        }
+        
+        // Check sender account
+        if (!accountValidator.isValidSenderAccount(
+                transaction.getSenderAccount(), 
+                transaction.getAmount(), 
+                transaction.getSender())) {
+            log.info("Transaction rejected due to invalid sender account");
+            return false;
+        }
+        
+        // Check recipient account
+        if (!accountValidator.isValidRecipientAccount(
+                transaction.getRecipientAccount(), 
+                transaction.getRecipient())) {
+            log.info("Transaction rejected due to invalid recipient account");
+            return false;
+        }
+        
+        return true;
     }
 }
