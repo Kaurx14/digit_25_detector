@@ -40,7 +40,7 @@ public class Processor {
     private final ExecutorService executorService = Executors.newFixedThreadPool(
             Math.max(Runtime.getRuntime().availableProcessors(), 10)); // Scale with available CPUs
 
-    @Scheduled(fixedDelay = 10) // Run more frequently - Lauri
+    @Scheduled(fixedDelay = 5) // Run more frequently - Lauri
     public void process() {
         // Check if we're already at the pending transactions limit
         int currentPending = pendingTransactions.get();
